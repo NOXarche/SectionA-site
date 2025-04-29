@@ -2,8 +2,11 @@
 const userName = localStorage.getItem('name') || "Martian";
 document.getElementById('userGreeting').textContent = `Hi, ${userName}!`;
 
+// ========== SESSION & ROLE CHECK ==========
 if (!localStorage.getItem('loggedIn')) {
   window.location.href = "auth/index.html";
+} else if (localStorage.getItem('role') === 'admin') {
+  window.location.href = "admin.html";
 }
 
 // ========== LOGOUT ==========
