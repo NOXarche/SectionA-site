@@ -240,3 +240,12 @@ function triggerRoverEasterEgg() {
     rover.style.transition = '';
   }, 2000);
 }
+// Redirect all login/signup/CTA/gallery/feature links to auth page
+document.querySelectorAll(
+  '.login-top-btn, .cta-btn, .signup-btn, .gallery-link, .signup-link'
+).forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    window.location.href = 'auth/index.html';
+  });
+});
