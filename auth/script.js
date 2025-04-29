@@ -1,4 +1,4 @@
-// Theme toggle
+// ========== THEME TOGGLE ==========
 const themeToggle = document.getElementById('themeToggle');
 let darkMode = true;
 themeToggle.onclick = () => {
@@ -12,7 +12,7 @@ if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matc
   darkMode = false;
 }
 
-// Tab switching
+// ========== TAB SWITCHING ==========
 const authTabs = document.querySelectorAll('.auth-tab');
 const authForms = document.querySelectorAll('.auth-form');
 authTabs.forEach(tab => {
@@ -25,14 +25,14 @@ authTabs.forEach(tab => {
   });
 });
 
-// Demo/mock authentication logic (replace with Firebase in production)
+// ========== SHOW MESSAGE ==========
 function showMsg(msg, color="#ff4040") {
   const el = document.getElementById('authMsg');
   el.textContent = msg;
   el.style.color = color;
 }
 
-// Login
+// ========== LOGIN ==========
 document.getElementById('loginForm').onsubmit = function(e) {
   e.preventDefault();
   const roll = document.getElementById('loginRoll').value.trim();
@@ -45,14 +45,15 @@ document.getElementById('loginForm').onsubmit = function(e) {
     showMsg("Password must be at least 6 characters.");
     return;
   }
-  // TODO: Replace with Firebase Auth
-  // On success:
-  // window.location.href = "../mainpage.html";
-  showMsg("Demo: Login successful! (Replace with Firebase)", "#00e676");
-  setTimeout(() => window.location.href = "../mainpage.html", 1000);
+  // DEMO: Always successful login, set session
+  localStorage.setItem('loggedIn', 'true');
+  localStorage.setItem('name', roll); // In real app, fetch name from DB
+  // Optionally store subsection, role, etc.
+  showMsg("Login successful! Redirecting...", "#00e676");
+  setTimeout(() => window.location.href = "../mainpage.html", 900);
 };
 
-// Register
+// ========== REGISTER ==========
 document.getElementById('registerForm').onsubmit = function(e) {
   e.preventDefault();
   const name = document.getElementById('registerName').value.trim();
@@ -80,9 +81,10 @@ document.getElementById('registerForm').onsubmit = function(e) {
     showMsg("Passwords do not match.");
     return;
   }
-  // TODO: Replace with Firebase Auth
-  // On success:
-  // window.location.href = "../mainpage.html";
-  showMsg("Demo: Registration successful! (Replace with Firebase)", "#00e676");
-  setTimeout(() => window.location.href = "../mainpage.html", 1000);
+  // DEMO: Always successful registration, set session
+  localStorage.setItem('loggedIn', 'true');
+  localStorage.setItem('name', name);
+  localStorage.setItem('subsection', subsection);
+  showMsg("Registration successful! Redirecting...", "#00e676");
+  setTimeout(() => window.location.href = "../mainpage.html", 900);
 };
