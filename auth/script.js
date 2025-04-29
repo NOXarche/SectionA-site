@@ -12,6 +12,20 @@ if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matc
   darkMode = false;
 }
 
+// ========== ADMIN ROLLS ==========
+const adminRolls = [
+  "018000000001",
+  "091200000002",
+  "123456789012",
+  "987654321098",
+  "112233445566",
+  "223344556677",
+  "334455667788",
+  "445566778899",
+  "556677889900",
+  "667788990011"
+];
+
 // ========== TAB SWITCHING ==========
 const authTabs = document.querySelectorAll('.auth-tab');
 const authForms = document.querySelectorAll('.auth-form');
@@ -45,12 +59,22 @@ document.getElementById('loginForm').onsubmit = function(e) {
     showMsg("Password must be at least 6 characters.");
     return;
   }
-  // DEMO: Always successful login, set session
-  localStorage.setItem('loggedIn', 'true');
-  localStorage.setItem('name', roll); // In real app, fetch name from DB
-  // Optionally store subsection, role, etc.
-  showMsg("Login successful! Redirecting...", "#00e676");
-  setTimeout(() => window.location.href = "../mainpage.html", 900);
+
+  // DEMO: If roll is in adminRolls, treat as admin
+  if (adminRolls.includes(roll)) {
+    localStorage.setItem('loggedIn', 'true');
+    localStorage.setItem('name', "Admin User");
+    localStorage.setItem('role', 'admin');
+    // Optionally store subsection if you want
+    showMsg("Admin login successful! Redirecting...", "#00e676");
+    setTimeout(() => window.location.href = "../admin.html", 900);
+  } else {
+    localStorage.setItem('loggedIn', 'true');
+    localStorage.setItem('name', roll);
+    localStorage.setItem('role', 'student');
+    showMsg("Login successful! Redirecting...", "#00e676");
+    setTimeout(() => window.location.href = "../mainpage.html", 900);
+  }
 };
 
 // ========== REGISTER ==========
@@ -81,10 +105,21 @@ document.getElementById('registerForm').onsubmit = function(e) {
     showMsg("Passwords do not match.");
     return;
   }
-  // DEMO: Always successful registration, set session
-  localStorage.setItem('loggedIn', 'true');
-  localStorage.setItem('name', name);
-  localStorage.setItem('subsection', subsection);
-  showMsg("Registration successful! Redirecting...", "#00e676");
-  setTimeout(() => window.location.href = "../mainpage.html", 900);
+
+  // DEMO: If roll is in adminRolls, treat as admin
+  if (adminRolls.includes(roll)) {
+    localStorage.setItem('loggedIn', 'true');
+    localStorage.setItem('name', name);
+    localStorage.setItem('role', 'admin');
+    localStorage.setItem('subsection', subsection);
+    showMsg("Admin registration successful! Redirecting...", "#00e676");
+    setTimeout(() => window.location.href = "../admin.html", 900);
+  } else {
+    localStorage.setItem('loggedIn', 'true');
+    localStorage.setItem('name', name);
+    localStorage.setItem('role', 'student');
+    localStorage.setItem('subsection', subsection);
+    showMsg("Registration successful! Redirecting...", "#00e676");
+    setTimeout(() => window.location.href = "../mainpage.html", 900);
+  }
 };
