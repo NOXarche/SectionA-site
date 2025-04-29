@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Profile | Martian Civils JU Section A</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Orbitron:700|Audiowide&display=swap">
+  <link rel="stylesheet" href="profile.css" />
+</head>
+<body>
+  <div class="martian-bg">
+    <div class="bg-stars"></div>
+    <div class="bg-mountains"></div>
+    <div class="bg-dust"></div>
+  </div>
+  <nav class="navbar glassy">
+    <div class="logo-title">
+      <span class="logo">🪐</span>
+      <span class="site-title">Profile</span>
+    </div>
+    <div class="nav-actions">
+      <button id="themeToggle" class="icon-btn" aria-label="Toggle theme">🌑</button>
+      <button id="logoutBtn" class="icon-btn logout-btn" aria-label="Logout">⎋</button>
+    </div>
+  </nav>
+  <main>
+    <section class="section profile-section glassy">
+      <h2>Your Profile</h2>
+      <div class="profile-card float-card" id="profileCard">
+        <div class="profile-avatar" id="profileAvatar">👩‍🚀</div>
+        <div class="profile-info">
+          <div class="profile-row"><span>Name:</span><span id="profileName"></span></div>
+          <div class="profile-row"><span>Roll Number:</span><span id="profileRoll"></span></div>
+          <div class="profile-row"><span>Subsection:</span>
+            <span id="profileSubsection"></span>
+            <button id="editSubsectionBtn" class="edit-btn" title="Edit Subsection">✎</button>
+            <select id="subsectionSelect" class="edit-select" style="display:none;">
+              <option value="A1">A1</option>
+              <option value="A2">A2</option>
+              <option value="A3">A3</option>
+            </select>
+            <button id="saveSubsectionBtn" class="save-btn" style="display:none;">💾</button>
+          </div>
+          <div class="profile-row"><span>Role:</span>
+            <span id="profileRole"></span>
+            <span id="adminBadge" class="admin-badge" style="display:none;">ADMIN</span>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <button id="editNameBtn" class="neon-btn">Edit Name</button>
+          <button id="changePasswordBtn" class="neon-btn">Change Password</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <!-- Edit Name Modal -->
+  <div class="modal" id="editNameModal">
+    <div class="modal-content">
+      <h3>Edit Name</h3>
+      <form id="editNameForm">
+        <input type="text" id="editNameInput" placeholder="Enter new name" required>
+        <button type="submit" class="neon-btn">Save</button>
+        <button type="button" class="neon-btn cancel-btn" id="cancelEditName">Cancel</button>
+      </form>
+    </div>
+  </div>
+  <!-- Change Password Modal -->
+  <div class="modal" id="changePasswordModal">
+    <div class="modal-content">
+      <h3>Change Password</h3>
+      <form id="changePasswordForm">
+        <input type="password" id="oldPassword" placeholder="Old Password" required>
+        <input type="password" id="newPassword" placeholder="New Password" required>
+        <input type="password" id="confirmPassword" placeholder="Confirm New Password" required>
+        <button type="submit" class="neon-btn">Change</button>
+        <button type="button" class="neon-btn cancel-btn" id="cancelChangePassword">Cancel</button>
+      </form>
+    </div>
+  </div>
+  <footer class="footer glassy">
+    <div>
+      <span>© 2025 Martian Civils - JU Section A</span>
+    </div>
+  </footer>
+  <script src="profile.js"></script>
+</body>
+</html>
