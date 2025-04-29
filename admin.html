@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Admin Dashboard | Martian Civils JU Section A</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Orbitron:700|Audiowide&display=swap">
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <div class="martian-bg">
+    <div class="bg-stars"></div>
+    <div class="bg-mountains"></div>
+    <div class="bg-dust"></div>
+  </div>
+  <nav class="navbar glassy">
+    <div class="logo-title">
+      <span class="logo">🪐</span>
+      <span class="site-title">Martian Civils Admin</span>
+    </div>
+    <div class="nav-actions">
+      <span id="adminGreeting" style="font-size:1.1em;color:var(--neon);font-family:var(--orbitron);margin-right:1em;"></span>
+      <button id="themeToggle" class="icon-btn" aria-label="Toggle theme">🌑</button>
+      <button id="logoutBtn" class="icon-btn logout-btn" aria-label="Logout">⎋</button>
+    </div>
+  </nav>
+  <main>
+    <section class="section dashboard-section glassy">
+      <h2>Admin Dashboard</h2>
+      <div class="dashboard-grid">
+        <!-- Announcements -->
+        <div class="admin-card glassy">
+          <h3>Upload Announcement</h3>
+          <form id="announcementForm">
+            <input type="text" id="annTitle" placeholder="Title" required>
+            <textarea id="annDesc" placeholder="Description" required></textarea>
+            <input type="date" id="annDate" required>
+            <select id="annPriority" required>
+              <option value="">Priority</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+            <button type="submit" class="neon-btn">Upload</button>
+          </form>
+          <div id="annList" class="admin-list"></div>
+        </div>
+        <!-- Gallery -->
+        <div class="admin-card glassy">
+          <h3>Upload Gallery Photo</h3>
+          <form id="galleryForm">
+            <input type="url" id="galleryImg" placeholder="Image URL" required>
+            <input type="text" id="galleryCaption" placeholder="Caption" required>
+            <button type="submit" class="neon-btn">Upload</button>
+          </form>
+          <div id="galleryList" class="admin-list"></div>
+        </div>
+        <!-- Schedule -->
+        <div class="admin-card glassy">
+          <h3>Upload Schedule</h3>
+          <form id="scheduleForm">
+            <select id="schedSubsection" required>
+              <option value="">Subsection</option>
+              <option value="A1">A1</option>
+              <option value="A2">A2</option>
+              <option value="A3">A3</option>
+            </select>
+            <input type="text" id="schedSubject" placeholder="Subject" required>
+            <input type="time" id="schedTime" required>
+            <input type="text" id="schedLocation" placeholder="Location" required>
+            <button type="submit" class="neon-btn">Add to Schedule</button>
+          </form>
+          <div id="scheduleList" class="admin-list"></div>
+        </div>
+        <!-- Upcoming Event -->
+        <div class="admin-card glassy">
+          <h3>Update Upcoming Event</h3>
+          <form id="eventForm">
+            <input type="text" id="eventTitle" placeholder="Event Name" required>
+            <input type="datetime-local" id="eventDate" required>
+            <input type="url" id="eventRSVP" placeholder="RSVP Link (optional)">
+            <button type="submit" class="neon-btn">Update Event</button>
+          </form>
+          <div id="eventList" class="admin-list"></div>
+        </div>
+        <!-- Resources CRUD -->
+        <div class="admin-card glassy">
+          <h3>Manage Resources</h3>
+          <form id="resourceForm">
+            <input type="text" id="resTitle" placeholder="Resource Title" required>
+            <select id="resType" required>
+              <option value="">Type</option>
+              <option value="youtube">YouTube Link</option>
+              <option value="pdf">PDF</option>
+              <option value="other">Other</option>
+            </select>
+            <input type="url" id="resLink" placeholder="Resource URL" required>
+            <button type="submit" class="neon-btn">Add Resource</button>
+          </form>
+          <div id="resourceList" class="admin-list"></div>
+        </div>
+      </div>
+      <div id="adminMsg" class="admin-msg"></div>
+    </section>
+  </main>
+  <footer class="footer glassy">
+    <div>
+      <span>© 2025 Martian Civils - JU Section A Admin</span>
+    </div>
+  </footer>
+  <script src="admin.js"></script>
+</body>
+</html>
