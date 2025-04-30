@@ -1,8 +1,9 @@
-// Firebase SDK imports (for ES6 modules; if using CDN, remove import lines and use global firebase)
+// Firebase imports (for ES6 modules; if using CDN, use window.firebase)
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 
-// Your config from Firebase Console (as in your screenshot)
+// Your Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDlFYzg5Te2jz-kVKXd0yGYlJkMwU9fxss",
   authDomain: "ju-civil-a-martian.firebaseapp.com",
@@ -14,8 +15,34 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
-// ========== ANNOUNCEMENT FORM ==========
+// ========== SESSION CHECK: Only admins allowed ==========
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "auth/index.html";
+    return;
+  }
+  // Check Firestore for role
+  const userDoc = await (await import("firebase/firestore")).getDoc(
+    (await import("firebase/firestore")).doc(db, "users", user.uid)
+  );
+  if (!userDoc.exists() || userDoc.data().role !== "admin") {
+    await signOut(auth);
+    window.location.href = "auth/index.html";
+    return;
+  }
+  // Optionally show admin greeting
+  document.getElementById('adminGreeting').textContent = `Hi, ${userDoc.data().name}!`;
+});
+
+// ========== LOGOUT ==========
+document.getElementById('logoutBtn').onclick = async () => {
+  await signOut(auth);
+  window.location.href = "auth/index.html";
+};
+
+// ========== ANNOUNCEMENT FORM HANDLER ==========
 document.getElementById('announcementForm').onsubmit = async function(e) {
   e.preventDefault();
   const title = document.getElementById('annTitle').value;
@@ -35,7 +62,7 @@ document.getElementById('announcementForm').onsubmit = async function(e) {
   setTimeout(() => { adminMsg.textContent = ""; }, 2000);
 };
 
-// ========== GALLERY FORM ==========
+// ========== GALLERY FORM HANDLER ==========
 document.getElementById('galleryForm').onsubmit = async function(e) {
   e.preventDefault();
   const img = document.getElementById('galleryImg').value;
@@ -53,7 +80,7 @@ document.getElementById('galleryForm').onsubmit = async function(e) {
   setTimeout(() => { adminMsg.textContent = ""; }, 2000);
 };
 
-// ========== SCHEDULE FORM ==========
+// ========== SCHEDULE FORM HANDLER ==========
 document.getElementById('scheduleForm').onsubmit = async function(e) {
   e.preventDefault();
   const subsection = document.getElementById('schedSubsection').value;
@@ -73,7 +100,7 @@ document.getElementById('scheduleForm').onsubmit = async function(e) {
   setTimeout(() => { adminMsg.textContent = ""; }, 2000);
 };
 
-// ========== EVENT FORM ==========
+// ========== EVENT FORM HANDLER ==========
 document.getElementById('eventForm').onsubmit = async function(e) {
   e.preventDefault();
   const title = document.getElementById('eventTitle').value;
@@ -92,7 +119,7 @@ document.getElementById('eventForm').onsubmit = async function(e) {
   setTimeout(() => { adminMsg.textContent = ""; }, 2000);
 };
 
-// ========== RESOURCE FORM ==========
+// ========== RESOURCE FORM HANDLER ==========
 document.getElementById('resourceForm').onsubmit = async function(e) {
   e.preventDefault();
   const title = document.getElementById('resTitle').value;
