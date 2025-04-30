@@ -22,9 +22,34 @@ body {
   transition: background 0.7s, color 0.7s;
 }
 
+/* Dynamic Stars */
+#star-bg {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.8;
+  box-shadow: 0 0 6px 2px #fff, 0 0 20px 6px #ff8a0033;
+  animation: star-twinkle 4s infinite alternate;
+}
+@keyframes star-twinkle {
+  0% { opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* Parallax Martian Background (reuse from main theme) */
 .martian-bg {
   position: fixed;
-  z-index: 0;
+  z-index: 1;
   top: 0; left: 0; width: 100vw; height: 100vh;
   pointer-events: none;
   overflow: hidden;
@@ -37,6 +62,7 @@ body {
   background: url('https://svgshare.com/i/16zT.svg') repeat-x top;
   opacity: 0.3;
   animation: starsMove 180s linear infinite;
+  z-index: 1;
 }
 @keyframes starsMove { 0%{background-position-x:0;} 100%{background-position-x:1000px;} }
 .bg-mountains {
@@ -45,6 +71,7 @@ body {
   background-size: cover;
   opacity: 0.7;
   animation: mountainsMove 60s linear infinite;
+  z-index: 1;
 }
 @keyframes mountainsMove { 0%{background-position-x:0;} 100%{background-position-x:1000px;} }
 .bg-dust {
@@ -53,6 +80,7 @@ body {
   background-size: cover;
   opacity: 0.7;
   animation: dustMove 24s linear infinite;
+  z-index: 1;
 }
 @keyframes dustMove { 0%{background-position-x:0;} 100%{background-position-x:1200px;} }
 
@@ -125,6 +153,7 @@ body {
   transition: box-shadow 0.3s, transform 0.3s;
   will-change: transform;
   position: relative;
+  z-index: 2;
 }
 .float-card {
   transition: box-shadow 0.3s, transform 0.3s;
