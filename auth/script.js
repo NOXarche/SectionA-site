@@ -1,9 +1,7 @@
-// Firebase imports (for ES6 modules; for CDN, use window.firebase)
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 
-// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDlFYzg5Te2jz-kVKXd0yGYlJkMwU9fxss",
   authDomain: "ju-civil-a-martian.firebaseapp.com",
@@ -22,7 +20,7 @@ const adminRolls = [
   "223344556677", "334455667788", "445566778899", "556677889900", "667788990011"
 ];
 
-// ========== TAB SWITCHING ==========
+// Tab switching
 const loginTab = document.querySelector('.auth-tab[data-tab="login"]');
 const registerTab = document.querySelector('.auth-tab[data-tab="register"]');
 const loginForm = document.getElementById('loginForm');
@@ -44,18 +42,16 @@ function showRegisterTab() {
 }
 loginTab.onclick = showLoginTab;
 registerTab.onclick = showRegisterTab;
-
-// Show login tab by default on load
 window.addEventListener('DOMContentLoaded', showLoginTab);
 
-// ========== SHOW MESSAGE ==========
+// Show message
 function showMsg(msg, color="#ff4040") {
   const el = document.getElementById('authMsg');
   el.textContent = msg;
   el.style.color = color;
 }
 
-// ========== REGISTER ==========
+// Register
 registerForm.onsubmit = async function(e) {
   e.preventDefault();
   const name = document.getElementById('registerName').value.trim();
@@ -86,7 +82,7 @@ registerForm.onsubmit = async function(e) {
   }
 };
 
-// ========== LOGIN ==========
+// Login
 loginForm.onsubmit = async function(e) {
   e.preventDefault();
   const roll = document.getElementById('loginRoll').value.trim();
@@ -108,3 +104,37 @@ loginForm.onsubmit = async function(e) {
     showMsg("Login failed: " + (err.message || err));
   }
 };
+
+// ========== DYNAMIC STAR BACKGROUND ==========
+function createStars() {
+  const starBg = document.getElementById('star-bg');
+  if (!starBg) return;
+  starBg.innerHTML = '';
+  const w = window.innerWidth, h = window.innerHeight;
+  const numStars = Math.floor((w * h) / 3500);
+  for (let i = 0; i < numStars; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = `${Math.random() * w}px`;
+    star.style.top = `${Math.random() * h}px`;
+    star.style.animationDuration = `${3 + Math.random() * 5}s`;
+    starBg.appendChild(star);
+  }
+}
+window.addEventListener('DOMContentLoaded', createStars);
+window.addEventListener('resize', createStars);
+
+// ========== FLOAT HOVER ANIMATION FOR CARDS ==========
+document.querySelectorAll('.float-card').forEach(card => {
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width/2;
+    const y = e.clientY - rect.top - rect.height/2;
+    card.style.transform = `perspective(800px) rotateY(${x/18}deg) rotateX(${-y/18}deg) scale(1.03)`;
+    card.style.boxShadow = "0 16px 64px #ff8a0033, 0 6px 32px #1a1a2e88";
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = "";
+    card.style.boxShadow = "";
+  });
+});
