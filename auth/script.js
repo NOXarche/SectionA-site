@@ -1,9 +1,8 @@
-// Firebase imports (for ES6 modules; for CDN, use window.firebase)
+// Firebase v9+ modular imports (for modules; for CDN, use window.firebase)
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 
-// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDlFYzg5Te2jz-kVKXd0yGYlJkMwU9fxss",
   authDomain: "ju-civil-a-martian.firebaseapp.com",
@@ -17,7 +16,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Admin rolls
 const adminRolls = [
   "018000000001", "091200000002", "123456789012", "987654321098", "112233445566",
   "223344556677", "334455667788", "445566778899", "556677889900", "667788990011"
@@ -43,7 +41,14 @@ registerTab.onclick = () => {
   document.getElementById('authMsg').textContent = "";
 };
 
-// ========== SHOW MESSAGE ==========
+// Show login tab by default on load
+window.addEventListener('DOMContentLoaded', () => {
+  loginTab.classList.add('active');
+  registerTab.classList.remove('active');
+  loginForm.classList.add('active');
+  registerForm.classList.remove('active');
+});
+
 function showMsg(msg, color="#ff4040") {
   const el = document.getElementById('authMsg');
   el.textContent = msg;
@@ -103,11 +108,3 @@ loginForm.onsubmit = async function(e) {
     showMsg("Login failed: " + err.message);
   }
 };
-
-// ========== DEFAULT TAB (SHOW LOGIN ON FIRST LOAD) ==========
-window.addEventListener('DOMContentLoaded', () => {
-  loginTab.classList.add('active');
-  registerTab.classList.remove('active');
-  loginForm.classList.add('active');
-  registerForm.classList.remove('active');
-});
