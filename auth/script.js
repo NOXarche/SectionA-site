@@ -1,4 +1,4 @@
-// Firebase imports (for ES6 modules; if using CDN, use window.firebase)
+// Firebase imports (for ES6 modules; for CDN, use window.firebase)
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
@@ -17,32 +17,41 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Your 10 admin rolls
+// Admin rolls
 const adminRolls = [
   "018000000001", "091200000002", "123456789012", "987654321098", "112233445566",
   "223344556677", "334455667788", "445566778899", "556677889900", "667788990011"
 ];
 
-// Tab switching (if you use tabs for login/register)
-const authTabs = document.querySelectorAll('.auth-tab');
-const authForms = document.querySelectorAll('.auth-form');
-authTabs.forEach(tab => {
-  tab.addEventListener('click', () => {
-    authTabs.forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    authForms.forEach(form => form.classList.remove('active'));
-    document.getElementById(tab.dataset.tab + 'Form').classList.add('active');
-    document.getElementById('authMsg').textContent = "";
-  });
-});
+// ========== TAB SWITCHING ==========
+const loginTab = document.querySelector('.auth-tab[data-tab="login"]');
+const registerTab = document.querySelector('.auth-tab[data-tab="register"]');
+const loginForm = document.getElementById('loginForm');
+const registerForm = document.getElementById('registerForm');
+loginTab.onclick = () => {
+  loginTab.classList.add('active');
+  registerTab.classList.remove('active');
+  loginForm.classList.add('active');
+  registerForm.classList.remove('active');
+  document.getElementById('authMsg').textContent = "";
+};
+registerTab.onclick = () => {
+  registerTab.classList.add('active');
+  loginTab.classList.remove('active');
+  registerForm.classList.add('active');
+  loginForm.classList.remove('active');
+  document.getElementById('authMsg').textContent = "";
+};
+
+// ========== SHOW MESSAGE ==========
 function showMsg(msg, color="#ff4040") {
   const el = document.getElementById('authMsg');
   el.textContent = msg;
   el.style.color = color;
 }
 
-// REGISTER
-document.getElementById('registerForm').onsubmit = async function(e) {
+// ========== REGISTER ==========
+registerForm.onsubmit = async function(e) {
   e.preventDefault();
   const name = document.getElementById('registerName').value.trim();
   const roll = document.getElementById('registerRoll').value.trim();
@@ -59,21 +68,20 @@ document.getElementById('registerForm').onsubmit = async function(e) {
   const role = adminRolls.includes(roll) ? "admin" : "student";
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    // Save profile to Firestore with UID as key
     await setDoc(doc(db, "users", userCredential.user.uid), {
       name, roll, subsection, role
     });
     showMsg("Registration successful! Redirecting...", "#00e676");
     setTimeout(() => {
-      window.location.replace(role === "admin" ? "../admin.html" : "../mainpage.html");
+      window.location.href = role === "admin" ? "../admin.html" : "../mainpage.html";
     }, 700);
   } catch (err) {
     showMsg("Registration failed: " + err.message);
   }
 };
 
-// LOGIN
-document.getElementById('loginForm').onsubmit = async function(e) {
+// ========== LOGIN ==========
+loginForm.onsubmit = async function(e) {
   e.preventDefault();
   const roll = document.getElementById('loginRoll').value.trim();
   const password = document.getElementById('loginPassword').value;
@@ -82,13 +90,12 @@ document.getElementById('loginForm').onsubmit = async function(e) {
   const email = `${roll}@martian.com`;
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    // Fetch user profile from Firestore
     const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
     if (!userDoc.exists()) return showMsg("Profile not found. Contact admin.");
     const data = userDoc.data();
     showMsg("Login successful! Redirecting...", "#00e676");
     setTimeout(() => {
-      window.location.replace(data.role === "admin" ? "../admin.html" : "../mainpage.html");
+      window.location.href = data.role === "admin" ? "../admin.html" : "../mainpage.html";
     }, 700);
   } catch (err) {
     showMsg("Login failed: " + err.message);
