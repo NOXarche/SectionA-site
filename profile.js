@@ -1,14 +1,3 @@
-import { getAuth } from "firebase/auth";
-import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
-
-const auth = getAuth();
-const db = getFirestore();
-
-// ========== SESSION CHECK ==========
-if (!localStorage.getItem('loggedIn')) {
-  window.location.href = "auth/index.html";
-}
-
 // ========== THEME TOGGLE ==========
 const themeToggle = document.getElementById('themeToggle');
 let darkMode = true;
@@ -23,129 +12,106 @@ if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matc
   darkMode = false;
 }
 
-// ========== LOGOUT ==========
-document.getElementById('logoutBtn').onclick = () => {
-  localStorage.clear();
-  sessionStorage.clear();
-  window.location.href = "auth/index.html";
-};
+// ========== ADMIN ROLLS ==========
+const adminRolls = [
+  "018000000001",
+  "091200000002",
+  "123456789012",
+  "987654321098",
+  "112233445566",
+  "223344556677",
+  "334455667788",
+  "445566778899",
+  "556677889900",
+  "667788990011"
+];
 
-// ========== GO TO MAIN PAGE ==========
-document.getElementById('gotoMainBtn').onclick = () => {
-  window.location.href = "mainpage.html";
-};
+// ========== TAB SWITCHING ==========
+const authTabs = document.querySelectorAll('.auth-tab');
+const authForms = document.querySelectorAll('.auth-form');
+authTabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    authTabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    authForms.forEach(form => form.classList.remove('active'));
+    document.getElementById(tab.dataset.tab + 'Form').classList.add('active');
+    document.getElementById('authMsg').textContent = "";
+  });
+});
 
-// ========== LOAD USER DATA ==========
-async function loadProfile() {
-  const roll = localStorage.getItem('roll');
-  let user = {
-    name: localStorage.getItem('name') || "Martian",
-    roll: roll || "002410401001",
-    subsection: localStorage.getItem('subsection') || "A1",
-    role: localStorage.getItem('role') || "student"
-  };
-  // Fetch from Firestore for latest
-  if (roll) {
-    const userDoc = await getDoc(doc(db, "users", roll));
-    if (userDoc.exists()) {
-      const data = userDoc.data();
-      user = { ...user, ...data };
-      // Sync localStorage for instant reflection on main page
-      localStorage.setItem('name', user.name);
-      localStorage.setItem('subsection', user.subsection);
-    }
-  }
-  document.getElementById('profileName').textContent = user.name;
-  document.getElementById('profileRoll').textContent = user.roll;
-  document.getElementById('profileSubsection').textContent = user.subsection;
-  document.getElementById('profileRole').textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
-  document.getElementById('profileAvatar').textContent = user.role === "admin" ? "👨‍🚀" : "👩‍🚀";
-  document.getElementById('adminBadge').style.display = user.role === "admin" ? "" : "none";
+// ========== SHOW MESSAGE ==========
+function showMsg(msg, color="#ff4040") {
+  const el = document.getElementById('authMsg');
+  el.textContent = msg;
+  el.style.color = color;
 }
-loadProfile();
 
-// ========== EDIT NAME ==========
-const editNameModal = document.getElementById('editNameModal');
-document.getElementById('editNameBtn').onclick = () => {
-  document.getElementById('editNameInput').value = localStorage.getItem('name') || "";
-  editNameModal.classList.add('active');
-};
-document.getElementById('cancelEditName').onclick = () => editNameModal.classList.remove('active');
-document.getElementById('editNameForm').onsubmit = async function(e) {
+// ========== LOGIN ==========
+document.getElementById('loginForm').onsubmit = function(e) {
   e.preventDefault();
-  const newName = document.getElementById('editNameInput').value;
-  const roll = localStorage.getItem('roll');
-  if (roll) {
-    await updateDoc(doc(db, "users", roll), { name: newName });
-    localStorage.setItem('name', newName);
-    loadProfile();
-    alert("Name updated!");
-  }
-  editNameModal.classList.remove('active');
-};
-
-// ========== EDIT SUBSECTION ==========
-const subsectionSpan = document.getElementById('profileSubsection');
-const editSubsectionBtn = document.getElementById('editSubsectionBtn');
-const subsectionSelect = document.getElementById('subsectionSelect');
-const saveSubsectionBtn = document.getElementById('saveSubsectionBtn');
-editSubsectionBtn.onclick = () => {
-  subsectionSpan.style.display = "none";
-  editSubsectionBtn.style.display = "none";
-  subsectionSelect.value = localStorage.getItem('subsection') || "A1";
-  subsectionSelect.style.display = "";
-  saveSubsectionBtn.style.display = "";
-};
-saveSubsectionBtn.onclick = async () => {
-  const roll = localStorage.getItem('roll');
-  const newSub = subsectionSelect.value;
-  if (roll) {
-    await updateDoc(doc(db, "users", roll), { subsection: newSub });
-    localStorage.setItem('subsection', newSub);
-    loadProfile();
-    alert("Subsection updated!");
-  }
-  subsectionSpan.style.display = "";
-  editSubsectionBtn.style.display = "";
-  subsectionSelect.style.display = "none";
-  saveSubsectionBtn.style.display = "none";
-};
-
-// ========== CHANGE PASSWORD ==========
-const changePasswordModal = document.getElementById('changePasswordModal');
-document.getElementById('changePasswordBtn').onclick = () => changePasswordModal.classList.add('active');
-document.getElementById('cancelChangePassword').onclick = () => changePasswordModal.classList.remove('active');
-document.getElementById('changePasswordForm').onsubmit = async function(e) {
-  e.preventDefault();
-  const oldPass = document.getElementById('oldPassword').value;
-  const newPass = document.getElementById('newPassword').value;
-  const confirmPass = document.getElementById('confirmPassword').value;
-  if (newPass !== confirmPass) {
-    alert("New passwords do not match!");
+  const roll = document.getElementById('loginRoll').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if (!/^\d{12}$/.test(roll)) {
+    showMsg("Roll number must be 12 digits.");
     return;
   }
-  // Firebase password update
-  try {
-    await auth.currentUser.updatePassword(newPass);
-    alert("Password changed!");
-  } catch (err) {
-    alert("Failed to change password. Please re-login.");
+  if (password.length < 6) {
+    showMsg("Password must be at least 6 characters.");
+    return;
   }
-  changePasswordModal.classList.remove('active');
+
+  // DEMO: Always successful login (replace with Firebase in production)
+  localStorage.setItem('loggedIn', 'true');
+  localStorage.setItem('roll', roll);
+  localStorage.setItem('name', roll); // Replace with actual name if available
+  localStorage.setItem('role', adminRolls.includes(roll) ? 'admin' : 'student');
+  // Optionally restore subsection if you store it elsewhere
+
+  showMsg("Login successful! Redirecting...", "#00e676");
+  setTimeout(() => {
+    window.location.href = adminRolls.includes(roll) ? "../admin.html" : "../mainpage.html";
+  }, 700);
 };
 
-// ========== FLOAT HOVER ANIMATION FOR CARD ==========
-const floatCard = document.querySelector('.float-card');
-if (floatCard) {
-  floatCard.addEventListener('mousemove', (e) => {
-    const rect = floatCard.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width/2;
-    const y = e.clientY - rect.top - rect.height/2;
-    floatCard.style.transform = `perspective(800px) rotateY(${x/18}deg) rotateX(${-y/18}deg) scale(1.03)`;
-    floatCard.style.boxShadow = "0 16px 64px #ff8a0033, 0 6px 32px #1a1a2e88";
-  });
-  floatCard.addEventListener('mouseleave', () => {
-    floatCard.style.transform = "";
-    floatCard.style.boxShadow = "";
-  });
-}
+// ========== REGISTER ==========
+document.getElementById('registerForm').onsubmit = function(e) {
+  e.preventDefault();
+  const name = document.getElementById('registerName').value.trim();
+  const roll = document.getElementById('registerRoll').value.trim();
+  const subsection = document.getElementById('registerSubsection').value;
+  const password = document.getElementById('registerPassword').value;
+  const confirmPassword = document.getElementById('confirmPassword').value;
+  if (!/^\d{12}$/.test(roll)) {
+    showMsg("Roll number must be 12 digits.");
+    return;
+  }
+  if (!name) {
+    showMsg("Name is required.");
+    return;
+  }
+  if (!subsection) {
+    showMsg("Please select subsection.");
+    return;
+  }
+  if (password.length < 6) {
+    showMsg("Password must be at least 6 characters.");
+    return;
+  }
+  if (password !== confirmPassword) {
+    showMsg("Passwords do not match.");
+    return;
+  }
+
+  // DEMO: Always successful registration (replace with Firebase in production)
+  localStorage.setItem('loggedIn', 'true');
+  localStorage.setItem('roll', roll);
+  localStorage.setItem('name', name);
+  localStorage.setItem('subsection', subsection);
+  localStorage.setItem('role', adminRolls.includes(roll) ? 'admin' : 'student');
+
+  showMsg("Registration successful! Redirecting...", "#00e676");
+  setTimeout(() => {
+    window.location.href = adminRolls.includes(roll) ? "../admin.html" : "../mainpage.html";
+  }, 700);
+};
+
