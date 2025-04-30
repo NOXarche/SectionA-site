@@ -1,4 +1,4 @@
-// Firebase v9+ modular imports (for modules; for CDN, use window.firebase)
+// Firebase imports (for ES6 modules; for CDN, use window.firebase)
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
@@ -21,11 +21,12 @@ const adminRolls = [
   "223344556677", "334455667788", "445566778899", "556677889900", "667788990011"
 ];
 
-// ========== TAB SWITCHING ==========
+// Tab switching
 const loginTab = document.querySelector('.auth-tab[data-tab="login"]');
 const registerTab = document.querySelector('.auth-tab[data-tab="register"]');
 const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
+
 loginTab.onclick = () => {
   loginTab.classList.add('active');
   registerTab.classList.remove('active');
@@ -49,13 +50,14 @@ window.addEventListener('DOMContentLoaded', () => {
   registerForm.classList.remove('active');
 });
 
+// Show message
 function showMsg(msg, color="#ff4040") {
   const el = document.getElementById('authMsg');
   el.textContent = msg;
   el.style.color = color;
 }
 
-// ========== REGISTER ==========
+// Register
 registerForm.onsubmit = async function(e) {
   e.preventDefault();
   const name = document.getElementById('registerName').value.trim();
@@ -79,14 +81,14 @@ registerForm.onsubmit = async function(e) {
     });
     showMsg("Registration successful! Redirecting...", "#00e676");
     setTimeout(() => {
-      window.location.href = role === "admin" ? "../admin.html" : "../mainpage.html";
+      window.location.href = role === "admin" ? "/admin.html" : "/mainpage.html";
     }, 700);
   } catch (err) {
     showMsg("Registration failed: " + err.message);
   }
 };
 
-// ========== LOGIN ==========
+// Login
 loginForm.onsubmit = async function(e) {
   e.preventDefault();
   const roll = document.getElementById('loginRoll').value.trim();
@@ -102,7 +104,7 @@ loginForm.onsubmit = async function(e) {
     const data = userDoc.data();
     showMsg("Login successful! Redirecting...", "#00e676");
     setTimeout(() => {
-      window.location.href = data.role === "admin" ? "../admin.html" : "../mainpage.html";
+      window.location.href = data.role === "admin" ? "/admin.html" : "/mainpage.html";
     }, 700);
   } catch (err) {
     showMsg("Login failed: " + err.message);
