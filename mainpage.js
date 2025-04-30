@@ -1,18 +1,44 @@
-// ========== SESSION CHECK & USER GREETING ==========
-const userName = localStorage.getItem('name') || "Martian";
-document.getElementById('userGreeting').textContent = `Hi, ${userName}!`;
+// Firebase imports (ES6 modules; for CDN, use window.firebase)
+import { initializeApp } from "firebase/app";
+import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
+import { getFirestore, doc, getDoc, onSnapshot, collection, query, orderBy } from "firebase/firestore";
 
-// ========== SESSION & ROLE CHECK ==========
-if (!localStorage.getItem('loggedIn')) {
-  window.location.href = "auth/index.html";
-} else if (localStorage.getItem('role') === 'admin') {
-  window.location.href = "admin.html";
-}
+const firebaseConfig = {
+  apiKey: "AIzaSyDlFYzg5Te2jz-kVKXd0yGYlJkMwU9fxss",
+  authDomain: "ju-civil-a-martian.firebaseapp.com",
+  projectId: "ju-civil-a-martian",
+  storageBucket: "ju-civil-a-martian.appspot.com",
+  messagingSenderId: "247448010406",
+  appId: "1:247448010406:web:a2efa79a4080513cc87e67",
+  measurementId: "G-BXYMLKE395"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ========== SESSION CHECK & USER GREETING ==========
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "auth/index.html";
+    return;
+  }
+  const userDoc = await getDoc(doc(db, "users", user.uid));
+  if (!userDoc.exists()) {
+    alert("Profile not found!");
+    await signOut(auth);
+    window.location.href = "auth/index.html";
+    return;
+  }
+  const data = userDoc.data();
+  document.getElementById('userGreeting').textContent = `Hi, ${data.name}!`;
+  if (data.role === "admin") {
+    window.location.href = "admin.html";
+  }
+});
 
 // ========== LOGOUT ==========
-document.getElementById('logoutBtn').onclick = () => {
-  localStorage.clear();
-  sessionStorage.clear();
+document.getElementById('logoutBtn').onclick = async () => {
+  await signOut(auth);
   window.location.href = "auth/index.html";
 };
 
@@ -35,12 +61,16 @@ if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matc
   darkMode = false;
 }
 
-// ========== ANNOUNCEMENTS FEED (MOCK DATA) ==========
-const announcements = [
-  { title: "Mid-Sem Exam Dates Released", desc: "Check the schedule for all subjects.", date: "2025-04-29", priority: "high" },
-  { title: "Project Group Allocation", desc: "Find your group and mentor for the Martian Habitat Project.", date: "2025-04-28", priority: "medium" },
-  { title: "Club Registrations Open", desc: "Join the Civil Innovators Club for workshops and fun!", date: "2025-04-27", priority: "low" }
-];
+// ========== REAL-TIME ANNOUNCEMENTS ==========
+let announcements = [];
+onSnapshot(
+  query(collection(db, "announcements"), orderBy("createdAt", "desc")),
+  (snapshot) => {
+    announcements = [];
+    snapshot.forEach(doc => announcements.push(doc.data()));
+    renderAnnouncements(document.getElementById('announcementFilter').value || "all");
+  }
+);
 function renderAnnouncements(filter = "all") {
   const feed = document.getElementById('announcementsFeed');
   feed.innerHTML = "";
@@ -64,34 +94,22 @@ function renderAnnouncements(filter = "all") {
   });
 }
 document.getElementById('announcementFilter').onchange = (e) => renderAnnouncements(e.target.value);
-renderAnnouncements();
 
-// ========== SCHEDULES FOR A1, A2, A3 ==========
-const schedules = {
-  A1: [
-    { subject: "Structural Analysis", time: "09:00", location: "Room A1" },
-    { subject: "Martian Geology", time: "11:00", location: "Lab 2" },
-    { subject: "Lunar Hydraulics", time: "13:00", location: "Room B2" },
-    { subject: "Terraforming Ethics", time: "15:00", location: "Seminar Hall" }
-  ],
-  A2: [
-    { subject: "Martian Geology", time: "09:00", location: "Lab 2" },
-    { subject: "Structural Analysis", time: "11:00", location: "Room A2" },
-    { subject: "Terraforming Ethics", time: "13:00", location: "Seminar Hall" },
-    { subject: "Lunar Hydraulics", time: "15:00", location: "Room B3" }
-  ],
-  A3: [
-    { subject: "Lunar Hydraulics", time: "09:00", location: "Room B3" },
-    { subject: "Terraforming Ethics", time: "11:00", location: "Seminar Hall" },
-    { subject: "Martian Geology", time: "13:00", location: "Lab 3" },
-    { subject: "Structural Analysis", time: "15:00", location: "Room A3" }
-  ]
-};
-
+// ========== REAL-TIME SCHEDULE ==========
+let schedules = { A1: [], A2: [], A3: [] };
+onSnapshot(collection(db, "schedule"), (snapshot) => {
+  // Clear schedules
+  schedules = { A1: [], A2: [], A3: [] };
+  snapshot.forEach(doc => {
+    const s = doc.data();
+    if (s.subsection && schedules[s.subsection]) schedules[s.subsection].push(s);
+  });
+  renderSchedule(document.getElementById('subsectionSelect').value || "A1");
+});
 function renderSchedule(subsection = "A1") {
   const timeline = document.getElementById('scheduleTimeline');
   timeline.innerHTML = "";
-  const schedule = schedules[subsection];
+  const schedule = schedules[subsection] || [];
   const now = new Date();
   const current = now.getHours() * 60 + now.getMinutes();
   let nextIdx = schedule.findIndex(s => {
@@ -108,75 +126,21 @@ function renderSchedule(subsection = "A1") {
     timeline.appendChild(div);
   });
 }
-
 const subsectionSelect = document.getElementById('subsectionSelect');
-const userSubsection = localStorage.getItem('subsection') || "A1";
-subsectionSelect.value = userSubsection;
-renderSchedule(userSubsection);
+subsectionSelect.onchange = (e) => renderSchedule(e.target.value);
 
-subsectionSelect.onchange = (e) => {
-  localStorage.setItem('subsection', e.target.value);
-  renderSchedule(e.target.value);
-};
-
-// ========== QUICK LINKS ==========
-document.querySelectorAll('.quicklink-btn').forEach(btn => {
-  btn.onclick = () => alert(`Navigate to ${btn.dataset.link} (integrate with router/Firebase as needed)`);
+// ========== REAL-TIME GALLERY CAROUSEL ==========
+let galleryImages = [];
+onSnapshot(query(collection(db, "gallery"), orderBy("uploadedAt", "desc")), (snapshot) => {
+  galleryImages = [];
+  snapshot.forEach(doc => galleryImages.push({ url: doc.data().img, alt: doc.data().caption }));
+  renderGallery();
 });
-
-// ========== DAILY KNOWLEDGE BUBBLE ==========
-const knowledgeBubbles = [
-  "Did you know? Mars has the largest volcano in the solar system: Olympus Mons.",
-  "Civil engineers on Mars use regolith bricks for habitats.",
-  "Martian dust storms can last for weeks-plan your site visits accordingly!",
-  "Mars' gravity is only 38% of Earth's. Structures need less support but more insulation.",
-  "The first Martian highway is planned for 2027-get ready!"
-];
-function renderKnowledgeBubble() {
-  const idx = Math.floor(Math.random() * knowledgeBubbles.length);
-  document.getElementById('dailyKnowledge').textContent = knowledgeBubbles[idx];
-}
-renderKnowledgeBubble();
-
-// ========== UPCOMING EVENTS COUNTDOWN (MOCK) ==========
-const nextEvent = {
-  title: "Interplanetary Fest",
-  date: "2025-05-05T10:00:00Z"
-};
-function updateCountdown() {
-  const now = new Date();
-  const eventDate = new Date(nextEvent.date);
-  const diff = eventDate - now;
-  if (diff <= 0) {
-    document.getElementById('eventCountdown').textContent = "Event is live!";
-    return;
-  }
-  const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-  const m = Math.floor((diff / (1000 * 60)) % 60);
-  const s = Math.floor((diff / 1000) % 60);
-  document.getElementById('eventCountdown').textContent =
-    `${d}d ${h}h ${m}m ${s}s`;
-  document.getElementById('eventTitle').textContent = nextEvent.title;
-  setTimeout(updateCountdown, 1000);
-}
-updateCountdown();
-document.getElementById('rsvpBtn').onclick = () => alert("RSVP submitted! (Firebase integration here)");
-document.getElementById('calendarBtn').onclick = () => alert("Add to calendar (ICS export or Google Calendar link)");
-
-// ========== GALLERY CAROUSEL (MOCK) ==========
-const galleryImages = [
-  { url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80", alt: "Freshers' Day" },
-  { url: "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80", alt: "Expo" },
-  { url: "https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?auto=format&fit=crop&w=400&q=80", alt: "Study Marathon" },
-  { url: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80", alt: "Mars Friends" },
-  { url: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80", alt: "Project Build" }
-];
 let galleryIdx = 0;
 function renderGallery() {
   const track = document.getElementById('carouselTrack');
   track.innerHTML = "";
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 3 && galleryImages.length > 0; i++) {
     const imgIdx = (galleryIdx + i) % galleryImages.length;
     const img = document.createElement('img');
     img.src = galleryImages[imgIdx].url;
@@ -194,9 +158,64 @@ document.getElementById('galleryNext').onclick = () => {
   galleryIdx = (galleryIdx + 1) % galleryImages.length;
   renderGallery();
 };
-renderGallery();
 
-// ========== STUDENT CORNER (MOCK ROTATING QUOTES) ==========
+// ========== REAL-TIME EVENTS ==========
+let eventsList = [];
+onSnapshot(query(collection(db, "events"), orderBy("createdAt", "desc")), (snapshot) => {
+  eventsList = [];
+  snapshot.forEach(doc => eventsList.push(doc.data()));
+  if (eventsList.length > 0) {
+    const nextEvent = eventsList[0];
+    document.getElementById('eventTitle').textContent = nextEvent.title;
+    // Countdown logic as before
+    function updateCountdown() {
+      const now = new Date();
+      const eventDate = new Date(nextEvent.date);
+      const diff = eventDate - now;
+      if (diff <= 0) {
+        document.getElementById('eventCountdown').textContent = "Event is live!";
+        return;
+      }
+      const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const m = Math.floor((diff / (1000 * 60)) % 60);
+      const s = Math.floor((diff / 1000) % 60);
+      document.getElementById('eventCountdown').textContent =
+        `${d}d ${h}h ${m}m ${s}s`;
+      setTimeout(updateCountdown, 1000);
+    }
+    updateCountdown();
+  }
+});
+
+// ========== REAL-TIME RESOURCES ==========
+let resources = [];
+onSnapshot(query(collection(db, "resources"), orderBy("uploadedAt", "desc")), (snapshot) => {
+  resources = [];
+  snapshot.forEach(doc => resources.push(doc.data()));
+  // You can now use the resources array to update your resources UI
+});
+
+// ========== QUICK LINKS ==========
+document.querySelectorAll('.quicklink-btn').forEach(btn => {
+  btn.onclick = () => alert(`Navigate to ${btn.dataset.link} (integrate with router/Firebase as needed)`);
+});
+
+// ========== DAILY KNOWLEDGE BUBBLE (STATIC) ==========
+const knowledgeBubbles = [
+  "Did you know? Mars has the largest volcano in the solar system: Olympus Mons.",
+  "Civil engineers on Mars use regolith bricks for habitats.",
+  "Martian dust storms can last for weeks-plan your site visits accordingly!",
+  "Mars' gravity is only 38% of Earth's. Structures need less support but more insulation.",
+  "The first Martian highway is planned for 2027-get ready!"
+];
+function renderKnowledgeBubble() {
+  const idx = Math.floor(Math.random() * knowledgeBubbles.length);
+  document.getElementById('dailyKnowledge').textContent = knowledgeBubbles[idx];
+}
+renderKnowledgeBubble();
+
+// ========== STUDENT CORNER (STATIC, or you can fetch from Firestore) ==========
 const studentMemories = [
   { text: "Best Martian field trip ever!", name: "Aditi, A2" },
   { text: "Built my first regolith bridge!", name: "Rahul, A1" },
@@ -215,7 +234,7 @@ renderStudentCorner();
 document.getElementById('submitMemoryBtn').onclick = () =>
   alert("Submit your memory (admin approval required, integrate with Firebase)!");
 
-// ========== PROJECTS & CLUBS (MOCK) ==========
+// ========== PROJECTS & CLUBS (STATIC, or fetch from Firestore) ==========
 const projects = [
   { title: "Mars Rover Bridge", team: "Team Ares", status: "Ongoing" },
   { title: "Hydroponics Dome", team: "GreenMartians", status: "Completed" },
@@ -239,7 +258,7 @@ function renderProjects(filter = "") {
 renderProjects();
 document.getElementById('searchBar').oninput = (e) => renderProjects(e.target.value);
 
-// ========== MARTIAN WEATHER WIDGET (FICTIONAL) ==========
+// ========== MARTIAN WEATHER WIDGET (STATIC) ==========
 const weatherStates = [
   { icon: "🪐", desc: "Clear Skies", temp: "-60°C" },
   { icon: "🌪️", desc: "Dust Storm", temp: "-55°C" },
