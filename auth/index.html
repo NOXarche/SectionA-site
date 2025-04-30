@@ -3,57 +3,48 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Login | Martian Civils JU Section A</title>
+  <title>Martian Civils - Login/Register</title>
   <link rel="stylesheet" href="styles.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="auth.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
+  <div id="star-bg"></div>
   <div class="martian-bg">
     <div class="bg-stars"></div>
     <div class="bg-mountains"></div>
     <div class="bg-dust"></div>
   </div>
-  <nav class="navbar glassy">
-    <div class="logo-title">
-      <span class="logo">🪐</span>
-      <span class="site-title">Martian Civils - Login</span>
-    </div>
-    <div class="nav-actions">
-      <button id="themeToggle" class="icon-btn" aria-label="Toggle theme">🌑</button>
-      <a href="../index.html" class="icon-btn" aria-label="Home">🏠</a>
-    </div>
-  </nav>
   <main>
-    <section class="section auth-section glassy" id="auth">
+    <section class="auth-section glassy">
       <div class="auth-tabs">
         <button class="auth-tab active" data-tab="login">Login</button>
         <button class="auth-tab" data-tab="register">Register</button>
       </div>
-      <div class="auth-forms">
-        <!-- Login Form -->
-        <form id="loginForm" class="auth-form active" autocomplete="off">
-          <h2>Student Login</h2>
+      <div class="auth-cards">
+        <!-- Login Card -->
+        <form id="loginForm" class="auth-form active float-card">
+          <h2 class="glow-title"><i class="fa-solid fa-right-to-bracket"></i> Login</h2>
           <div class="form-group">
             <label for="loginRoll">Roll Number</label>
-            <input type="text" id="loginRoll" pattern="^\d{12}$" maxlength="12" required placeholder="e.g. 002410401001" autocomplete="username">
+            <input type="text" id="loginRoll" maxlength="12" required placeholder="e.g. 002410401001" autocomplete="username">
           </div>
           <div class="form-group">
             <label for="loginPassword">Password</label>
             <input type="password" id="loginPassword" required autocomplete="current-password">
           </div>
-          <button class="primary-btn" type="submit">Login</button>
+          <button class="neon-btn" type="submit">Login</button>
         </form>
-        <!-- Register Form -->
-        <form id="registerForm" class="auth-form" autocomplete="off">
-          <h2>Register</h2>
+        <!-- Register Card -->
+        <form id="registerForm" class="auth-form float-card">
+          <h2 class="glow-title"><i class="fa-solid fa-user-plus"></i> Register</h2>
           <div class="form-group">
             <label for="registerName">Name</label>
             <input type="text" id="registerName" required placeholder="Your Name">
           </div>
           <div class="form-group">
             <label for="registerRoll">Roll Number</label>
-            <input type="text" id="registerRoll" pattern="^\d{12}$" maxlength="12" required placeholder="e.g. 002410401001" autocomplete="username">
+            <input type="text" id="registerRoll" maxlength="12" required placeholder="e.g. 002410401001" autocomplete="username">
           </div>
           <div class="form-group">
             <label for="registerSubsection">Subsection</label>
@@ -72,17 +63,12 @@
             <label for="confirmPassword">Confirm Password</label>
             <input type="password" id="confirmPassword" required autocomplete="new-password">
           </div>
-          <button class="primary-btn" type="submit">Register</button>
+          <button class="neon-btn" type="submit">Register</button>
         </form>
       </div>
       <div id="authMsg" class="auth-msg"></div>
     </section>
   </main>
-  <footer class="footer glassy">
-    <div>
-      <span>© 2025 Martian Civils - JU Section A</span>
-    </div>
-  </footer>
-  <script src="script.js"></script>
+  <script src="auth.js"></script>
 </body>
 </html>
