@@ -1,5 +1,22 @@
+// Firebase SDK imports (if using modules; if using <script> CDN, use window.firebase)
+import { initializeApp } from "firebase/app";
+import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
+
+// Your Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyDlFYzg5Te2jz-kVKXd0yGYlJkMwU9fxss",
+  authDomain: "ju-civil-a-martian.firebaseapp.com",
+  projectId: "ju-civil-a-martian",
+  storageBucket: "ju-civil-a-martian.appspot.com",
+  messagingSenderId: "247448010406",
+  appId: "1:247448010406:web:a2efa79a4080513cc87e67",
+  measurementId: "G-BXYMLKE395"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 // ========== SESSION CHECK ==========
-if (!localStorage.getItem('loggedIn')) {
+if (!localStorage.getItem('loggedIn') || !localStorage.getItem('roll')) {
   window.location.href = "auth/index.html";
 }
 
@@ -29,14 +46,33 @@ document.getElementById('gotoMainBtn').onclick = () => {
   window.location.href = "mainpage.html";
 };
 
-// ========== LOAD USER DATA ==========
+// ========== LOAD USER DATA FROM FIRESTORE ==========
 let user = {
   name: localStorage.getItem('name') || "Martian",
-  roll: localStorage.getItem('roll') || "002410401001",
+  roll: localStorage.getItem('roll') || "",
   subsection: localStorage.getItem('subsection') || "A1",
   role: localStorage.getItem('role') || "student"
 };
 
+async function loadProfile() {
+  const roll = user.roll;
+  if (!roll) return;
+  try {
+    const userDoc = await getDoc(doc(db, "users", roll));
+    if (userDoc.exists()) {
+      const data = userDoc.data();
+      user = { ...user, ...data };
+      // Sync localStorage for instant feedback
+      localStorage.setItem('name', user.name);
+      localStorage.setItem('subsection', user.subsection);
+      localStorage.setItem('role', user.role);
+      renderProfile();
+    }
+  } catch (err) {
+    // fallback to localStorage if Firestore error
+    renderProfile();
+  }
+}
 function renderProfile() {
   document.getElementById('profileName').textContent = user.name;
   document.getElementById('profileRoll').textContent = user.roll;
@@ -45,7 +81,7 @@ function renderProfile() {
   document.getElementById('profileAvatar').textContent = user.role === "admin" ? "👨‍🚀" : "👩‍🚀";
   document.getElementById('adminBadge').style.display = user.role === "admin" ? "" : "none";
 }
-renderProfile();
+loadProfile();
 
 // ========== EDIT NAME ==========
 const editNameModal = document.getElementById('editNameModal');
@@ -54,13 +90,19 @@ document.getElementById('editNameBtn').onclick = () => {
   editNameModal.classList.add('active');
 };
 document.getElementById('cancelEditName').onclick = () => editNameModal.classList.remove('active');
-document.getElementById('editNameForm').onsubmit = function(e) {
+document.getElementById('editNameForm').onsubmit = async function(e) {
   e.preventDefault();
-  user.name = document.getElementById('editNameInput').value;
-  localStorage.setItem('name', user.name);
-  renderProfile();
+  const newName = document.getElementById('editNameInput').value;
+  user.name = newName;
+  localStorage.setItem('name', newName);
+  try {
+    await updateDoc(doc(db, "users", user.roll), { name: newName });
+    alert("Name updated!");
+  } catch (err) {
+    alert("Failed to update name in Firestore.");
+  }
   editNameModal.classList.remove('active');
-  alert("Name updated! This will show on the main page after reload.");
+  renderProfile();
 };
 
 // ========== EDIT SUBSECTION ==========
@@ -75,15 +117,21 @@ editSubsectionBtn.onclick = () => {
   subsectionSelect.style.display = "";
   saveSubsectionBtn.style.display = "";
 };
-saveSubsectionBtn.onclick = () => {
-  user.subsection = subsectionSelect.value;
-  localStorage.setItem('subsection', user.subsection);
-  renderProfile();
+saveSubsectionBtn.onclick = async () => {
+  const newSub = subsectionSelect.value;
+  user.subsection = newSub;
+  localStorage.setItem('subsection', newSub);
+  try {
+    await updateDoc(doc(db, "users", user.roll), { subsection: newSub });
+    alert("Subsection updated!");
+  } catch (err) {
+    alert("Failed to update subsection in Firestore.");
+  }
   subsectionSpan.style.display = "";
   editSubsectionBtn.style.display = "";
   subsectionSelect.style.display = "none";
   saveSubsectionBtn.style.display = "none";
-  alert("Subsection updated!");
+  renderProfile();
 };
 
 // ========== CHANGE PASSWORD (DEMO ONLY) ==========
