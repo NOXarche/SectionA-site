@@ -25,12 +25,9 @@ document.getElementById('logoutBtn').onclick = () => {
 };
 
 // ========== GO TO MAIN PAGE ==========
-const gotoMainBtn = document.getElementById('gotoMainBtn');
-if (gotoMainBtn) {
-  gotoMainBtn.onclick = () => {
-    window.location.href = "mainpage.html";
-  };
-}
+document.getElementById('gotoMainBtn').onclick = () => {
+  window.location.href = "mainpage.html";
+};
 
 // ========== LOAD USER DATA ==========
 let user = {
@@ -120,3 +117,30 @@ if (floatCard) {
     floatCard.style.boxShadow = "";
   });
 }
+
+// ========== DYNAMIC STAR BACKGROUND ==========
+function createStars() {
+  const starBg = document.getElementById('star-bg');
+  if (!starBg) return;
+  starBg.innerHTML = '';
+  const w = window.innerWidth, h = window.innerHeight;
+  const numStars = Math.floor((w * h) / 3500);
+  for (let i = 0; i < numStars; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = `${Math.random() * w}px`;
+    star.style.top = `${Math.random() * h}px`;
+    star.style.animationDuration = `${3 + Math.random() * 5}s`;
+    star.animate([
+      { transform: `translateY(0px)` },
+      { transform: `translateY(${20 + Math.random() * 40}px)` }
+    ], {
+      duration: 8000 + Math.random() * 4000,
+      direction: "alternate",
+      iterations: Infinity
+    });
+    starBg.appendChild(star);
+  }
+}
+window.addEventListener('DOMContentLoaded', createStars);
+window.addEventListener('resize', createStars);
