@@ -1,6 +1,6 @@
 // Firebase imports (for ES6 modules; for CDN, use window.firebase)
 import { initializeApp } from "firebase/app";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 
 // Firebase config
@@ -67,6 +67,7 @@ registerForm.onsubmit = async function(e) {
   const email = `${roll}@martian.com`;
   const role = adminRolls.includes(roll) ? "admin" : "student";
   try {
+    await setPersistence(auth, browserLocalPersistence);
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     await setDoc(doc(db, "users", userCredential.user.uid), {
       name, roll, subsection, role
@@ -89,6 +90,7 @@ loginForm.onsubmit = async function(e) {
   if (password.length < 6) return showMsg("Password must be at least 6 characters.");
   const email = `${roll}@martian.com`;
   try {
+    await setPersistence(auth, browserLocalPersistence);
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
     if (!userDoc.exists()) return showMsg("Profile not found. Contact admin.");
@@ -101,3 +103,11 @@ loginForm.onsubmit = async function(e) {
     showMsg("Login failed: " + err.message);
   }
 };
+
+// ========== DEFAULT TAB (SHOW LOGIN ON FIRST LOAD) ==========
+window.addEventListener('DOMContentLoaded', () => {
+  loginTab.classList.add('active');
+  registerTab.classList.remove('active');
+  loginForm.classList.add('active');
+  registerForm.classList.remove('active');
+});
