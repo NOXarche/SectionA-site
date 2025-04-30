@@ -1,25 +1,4 @@
-// Import Firebase modules (adjust path as needed)
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
-
-const auth = getAuth();
-const db = getFirestore();
-
-// Your 10 admin rolls
-const adminRolls = [
-  "018000000001",
-  "091200000002",
-  "123456789012",
-  "987654321098",
-  "112233445566",
-  "223344556677",
-  "334455667788",
-  "445566778899",
-  "556677889900",
-  "667788990011"
-];
-
-// Theme toggle (unchanged)
+// ========== THEME TOGGLE ==========
 const themeToggle = document.getElementById('themeToggle');
 let darkMode = true;
 themeToggle.onclick = () => {
@@ -33,7 +12,21 @@ if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matc
   darkMode = false;
 }
 
-// Tab switching
+// ========== ADMIN ROLLS ==========
+const adminRolls = [
+  "018000000001",
+  "091200000002",
+  "123456789012",
+  "987654321098",
+  "112233445566",
+  "223344556677",
+  "334455667788",
+  "445566778899",
+  "556677889900",
+  "667788990011"
+];
+
+// ========== TAB SWITCHING ==========
 const authTabs = document.querySelectorAll('.auth-tab');
 const authForms = document.querySelectorAll('.auth-form');
 authTabs.forEach(tab => {
@@ -46,14 +39,15 @@ authTabs.forEach(tab => {
   });
 });
 
+// ========== SHOW MESSAGE ==========
 function showMsg(msg, color="#ff4040") {
   const el = document.getElementById('authMsg');
   el.textContent = msg;
   el.style.color = color;
 }
 
-// LOGIN
-document.getElementById('loginForm').onsubmit = async function(e) {
+// ========== LOGIN ==========
+document.getElementById('loginForm').onsubmit = function(e) {
   e.preventDefault();
   const roll = document.getElementById('loginRoll').value.trim();
   const password = document.getElementById('loginPassword').value;
@@ -65,30 +59,22 @@ document.getElementById('loginForm').onsubmit = async function(e) {
     showMsg("Password must be at least 6 characters.");
     return;
   }
-  try {
-    // For demo: use roll@martian.com as email
-    const email = `${roll}@martian.com`;
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    // Fetch user profile from Firestore
-    const userDoc = await getDoc(doc(db, "users", roll));
-    let userData = userDoc.exists() ? userDoc.data() : {};
-    // Set session/localStorage
-    localStorage.setItem('loggedIn', 'true');
-    localStorage.setItem('name', userData.name || roll);
-    localStorage.setItem('roll', roll);
-    localStorage.setItem('subsection', userData.subsection || "A1");
-    localStorage.setItem('role', adminRolls.includes(roll) ? 'admin' : 'student');
-    showMsg("Login successful! Redirecting...", "#00e676");
-    setTimeout(() => {
-      window.location.href = adminRolls.includes(roll) ? "../admin.html" : "../mainpage.html";
-    }, 900);
-  } catch (err) {
-    showMsg("Login failed. Please check your credentials.");
-  }
+
+  // DEMO: Always successful login (replace with Firebase in production)
+  localStorage.setItem('loggedIn', 'true');
+  localStorage.setItem('roll', roll);
+  localStorage.setItem('name', roll); // Replace with actual name if available
+  localStorage.setItem('subsection', localStorage.getItem('subsection') || "A1");
+  localStorage.setItem('role', adminRolls.includes(roll) ? 'admin' : 'student');
+
+  showMsg("Login successful! Redirecting...", "#00e676");
+  setTimeout(() => {
+    window.location.replace(adminRolls.includes(roll) ? "../admin.html" : "../mainpage.html");
+  }, 500);
 };
 
-// REGISTER
-document.getElementById('registerForm').onsubmit = async function(e) {
+// ========== REGISTER ==========
+document.getElementById('registerForm').onsubmit = function(e) {
   e.preventDefault();
   const name = document.getElementById('registerName').value.trim();
   const roll = document.getElementById('registerRoll').value.trim();
@@ -115,28 +101,16 @@ document.getElementById('registerForm').onsubmit = async function(e) {
     showMsg("Passwords do not match.");
     return;
   }
-  try {
-    const email = `${roll}@martian.com`;
-    await createUserWithEmailAndPassword(auth, email, password);
-    // Save user profile to Firestore
-    await setDoc(doc(db, "users", roll), {
-      name,
-      roll,
-      subsection,
-      role: adminRolls.includes(roll) ? 'admin' : 'student'
-    });
-    // Set session/localStorage
-    localStorage.setItem('loggedIn', 'true');
-    localStorage.setItem('name', name);
-    localStorage.setItem('roll', roll);
-    localStorage.setItem('subsection', subsection);
-    localStorage.setItem('role', adminRolls.includes(roll) ? 'admin' : 'student');
-    showMsg("Registration successful! Redirecting...", "#00e676");
-    setTimeout(() => {
-      window.location.href = adminRolls.includes(roll) ? "../admin.html" : "../mainpage.html";
-    }, 900);
-  } catch (err) {
-    showMsg("Registration failed. Roll may already be registered.");
-  }
-};
 
+  // DEMO: Always successful registration (replace with Firebase in production)
+  localStorage.setItem('loggedIn', 'true');
+  localStorage.setItem('roll', roll);
+  localStorage.setItem('name', name);
+  localStorage.setItem('subsection', subsection);
+  localStorage.setItem('role', adminRolls.includes(roll) ? 'admin' : 'student');
+
+  showMsg("Registration successful! Redirecting...", "#00e676");
+  setTimeout(() => {
+    window.location.replace(adminRolls.includes(roll) ? "../admin.html" : "../mainpage.html");
+  }, 500);
+};
