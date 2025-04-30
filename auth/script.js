@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDlFYzg5Te2jz-kVKXd0yGYlJkMwU9fxss",
   authDomain: "ju-civil-a-martian.firebaseapp.com",
@@ -21,43 +22,40 @@ const adminRolls = [
   "223344556677", "334455667788", "445566778899", "556677889900", "667788990011"
 ];
 
-// Tab switching
+// ========== TAB SWITCHING ==========
 const loginTab = document.querySelector('.auth-tab[data-tab="login"]');
 const registerTab = document.querySelector('.auth-tab[data-tab="register"]');
 const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
 
-loginTab.onclick = () => {
+function showLoginTab() {
   loginTab.classList.add('active');
   registerTab.classList.remove('active');
   loginForm.classList.add('active');
   registerForm.classList.remove('active');
   document.getElementById('authMsg').textContent = "";
-};
-registerTab.onclick = () => {
+}
+function showRegisterTab() {
   registerTab.classList.add('active');
   loginTab.classList.remove('active');
   registerForm.classList.add('active');
   loginForm.classList.remove('active');
   document.getElementById('authMsg').textContent = "";
-};
+}
+loginTab.onclick = showLoginTab;
+registerTab.onclick = showRegisterTab;
 
 // Show login tab by default on load
-window.addEventListener('DOMContentLoaded', () => {
-  loginTab.classList.add('active');
-  registerTab.classList.remove('active');
-  loginForm.classList.add('active');
-  registerForm.classList.remove('active');
-});
+window.addEventListener('DOMContentLoaded', showLoginTab);
 
-// Show message
+// ========== SHOW MESSAGE ==========
 function showMsg(msg, color="#ff4040") {
   const el = document.getElementById('authMsg');
   el.textContent = msg;
   el.style.color = color;
 }
 
-// Register
+// ========== REGISTER ==========
 registerForm.onsubmit = async function(e) {
   e.preventDefault();
   const name = document.getElementById('registerName').value.trim();
@@ -84,11 +82,11 @@ registerForm.onsubmit = async function(e) {
       window.location.href = role === "admin" ? "/admin.html" : "/mainpage.html";
     }, 700);
   } catch (err) {
-    showMsg("Registration failed: " + err.message);
+    showMsg("Registration failed: " + (err.message || err));
   }
 };
 
-// Login
+// ========== LOGIN ==========
 loginForm.onsubmit = async function(e) {
   e.preventDefault();
   const roll = document.getElementById('loginRoll').value.trim();
@@ -107,6 +105,6 @@ loginForm.onsubmit = async function(e) {
       window.location.href = data.role === "admin" ? "/admin.html" : "/mainpage.html";
     }, 700);
   } catch (err) {
-    showMsg("Login failed: " + err.message);
+    showMsg("Login failed: " + (err.message || err));
   }
 };
