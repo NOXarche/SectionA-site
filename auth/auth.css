@@ -1,0 +1,178 @@
+:root {
+  --primary: #ff8a00;
+  --primary-glow: #ffad42;
+  --secondary: #1a1a2e;
+  --accent: #3c1518;
+  --glass-bg: rgba(28,24,40,0.92);
+  --glass-bg-light: rgba(255,255,255,0.08);
+  --neon: #ff8a00;
+  --neon-glow: 0 0 8px #ff8a00, 0 0 24px #ff8a00cc;
+  --orbitron: 'Orbitron', 'Audiowide', 'Roboto', sans-serif;
+}
+body {
+  margin: 0;
+  font-family: var(--orbitron);
+  background: linear-gradient(180deg, var(--secondary) 0%, var(--accent) 100%);
+  color: #f3f3f3;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+#star-bg {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.star {
+  position: absolute;
+  width: 2px; height: 2px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.8;
+  box-shadow: 0 0 6px 2px #fff, 0 0 20px 6px #ff8a0033;
+  animation: star-twinkle 4s infinite alternate;
+}
+@keyframes star-twinkle {
+  0% { opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+.martian-bg { /* ...reuse your parallax martian CSS here... */ }
+
+.glassy {
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  border-radius: 1.3em;
+  box-shadow: 0 8px 40px #ff8a0033, 0 2px 12px #1a1a2e55;
+  border: 1.5px solid #ff8a0022;
+  margin: 4vh auto 0 auto;
+  max-width: 440px;
+  padding: 2.5em 1.5em 2em 1.5em;
+  position: relative;
+  z-index: 2;
+}
+
+.auth-section { text-align: center; }
+.auth-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 2em;
+  margin-bottom: 2em;
+}
+.auth-tab {
+  background: none;
+  border: none;
+  color: var(--neon);
+  font-family: var(--orbitron);
+  font-size: 1.3em;
+  padding: 0.4em 1.5em;
+  border-radius: 0.8em 0.8em 0 0;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+  position: relative;
+}
+.auth-tab.active,
+.auth-tab:hover {
+  background: var(--glass-bg-light);
+  color: #fff;
+  box-shadow: 0 4px 16px #ff8a0033;
+}
+.auth-cards {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2em;
+}
+.auth-form {
+  background: var(--glass-bg);
+  border-radius: 1.1em;
+  box-shadow: 0 6px 32px #ff8a0033;
+  padding: 2em 1.5em 1.2em 1.5em;
+  min-width: 320px;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  transition: box-shadow 0.3s, transform 0.3s;
+  will-change: transform;
+  position: relative;
+}
+.auth-form.active { display: flex; }
+.float-card { transition: box-shadow 0.3s, transform 0.3s; will-change: transform; }
+.float-card:hover {
+  transform: translateY(-10px) scale(1.025) rotate(-1deg);
+  box-shadow: 0 12px 48px #ff8a0033, 0 4px 24px #1a1a2e88;
+  z-index: 2;
+}
+.glow-title {
+  color: var(--neon);
+  text-shadow: var(--neon-glow);
+  margin-bottom: 1.2em;
+  font-size: 1.3em;
+  letter-spacing: 0.04em;
+}
+.form-group {
+  width: 100%;
+  margin-bottom: 1.2em;
+  text-align: left;
+}
+.form-group label {
+  font-size: 1em;
+  color: var(--primary-glow);
+  margin-bottom: 0.4em;
+  display: block;
+  font-family: var(--orbitron);
+}
+.form-group input, .form-group select {
+  width: 100%;
+  font-family: var(--orbitron);
+  font-size: 1em;
+  background: var(--glass-bg-light);
+  color: var(--neon);
+  border: 1.5px solid var(--neon);
+  border-radius: 0.7em;
+  padding: 0.7em 1em;
+  margin-bottom: 0.2em;
+  transition: border 0.3s, background 0.3s;
+}
+.form-group input:focus, .form-group select:focus {
+  border-color: #c1440e;
+  background: #fff;
+  color: #c1440e;
+  outline: none;
+}
+.neon-btn {
+  font-family: var(--orbitron);
+  font-size: 1.1em;
+  background: var(--neon);
+  color: #fff;
+  border: none;
+  border-radius: 0.8em;
+  padding: 0.7em 1.2em;
+  margin-top: 0.5em;
+  box-shadow: 0 2px 12px #ff8a0033;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, color 0.2s, transform 0.2s;
+  text-shadow: var(--neon-glow);
+}
+.neon-btn:hover {
+  background: #c1440e;
+  color: #fff;
+  transform: scale(1.05);
+  box-shadow: 0 4px 24px #ff8a00cc;
+}
+.auth-msg {
+  text-align: center;
+  color: #fff;
+  font-family: var(--orbitron);
+  font-size: 1.1rem;
+  margin-top: 1.5em;
+  min-height: 2em;
+}
+@media (max-width: 900px) {
+  .auth-cards { flex-direction: column; gap: 1.5em; }
+}
+@media (max-width: 600px) {
+  .glassy { padding: 1.3em 0.5em; }
+  .auth-form { min-width: 0; width: 100%; }
+}
